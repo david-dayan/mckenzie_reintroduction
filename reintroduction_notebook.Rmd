@@ -10,6 +10,63 @@ output:
 ---
 
 ```{r, message=FALSE, warning=FALSE}
-
+#packages here
 ```
+
+# Summary
+
+Utilize current and emerging genetic methods to determine the effectiveness of trapping and transport of adult salmonids above and below Portland District hydro-electric projects in the Willamette River Basin to increase population abundance, productivity and diversity. This includes determining if returning spawners are progeny of previous transports and the lifetime fitness of transported individuals - from proposal
+
+# Aims
+
+__Goals from USACE Proposal__  
+
+(1) Determine the number and proportion of unmarked adult Chinook salmon sampled at various locations in the South Fork McKenzie River (e.g. Cougar Trap and spawning grounds below Cougar dam) in 2016-2020 that can be assigned as progeny of Chinook salmon previously released above Cougar Dam, South Fork McKenzie River in 2011-2017.
+
+(2) Estimate the TLF for Chinook salmon reintroduced above Cougar Dam in 2011-2015. These estimates include unmarked adult offspring sampled at Cougar Dam, as well as unmarked spawners encountered on spawning grounds below the dam in 2014-2019. 
+
+(3) Estimate the effects of release date and release site on the total lifetime fitness of adult spring Chinook salmon released above Cougar Dam in 2011-2015.
+
+(4) Estimate cohort replacement rate (CRR), or “the number of future spawners produced by a spawner” for spring Chinook salmon released above Cougar Dam in 2011-2015.
+
+(5) Estimate the effective number of breeders (Nb) for the adult salmon population reintroduced above Cougar Dam in 2011-2015.
+
+(6) Estimate and report the annual abundance and age structure of adult Chinook salmon that return to the South Fork McKenzie River that can be confidently assigned to parents through genetic pedigree in 2016-2020. 
+
+(7) Evaluate fitness differences between HOR and NOR Chinook salmon released above Cougar Dam in 2011-2015 through assignment of adult offspring returns in 2014-2020.   
+
+__Additional Goals__  
+In addition to goals designated in the USACE propasal these data can be used to address several questions outlined by previous workers on the project or me:  
+
+(1) Estimate heritability of fitness traits (e.g. Evans et al 2019)
+
+(2) Estimate selection gradients for fitness traits (eg extend Evans et al 2019 analysis from selection on release date to include new trait data )  
+
+(3) Is there a fitness difference between first generation natural origin fish (i.e. NOR with HORxHOR parents) and later generation NOR fish/fish with unknown ancestry?  
+
+(4) Sythesize/compare these results with those from other reports years to identify trends. 
+
+
+
+# Methods Summary
+
+from USACE proposal:
+
+(1) Tissue samples have been collected from unmarked adult spring Chinook salmon sampled at the Trap and transported above Cougar Dam in 2016 (N = 302), 2017 (N = 244), 2018 (N = 120), 2019 (N = 166) and 2020 (N ~ 225). In addition, a few marked fish were sampled at the Trap and transported above Cougar Dam in 2016 (N = 71), 2017 (N = 6) and 2019 (N = 8). Note, the 2016 and 2017 samples have already been genotyped.  DNA will be extracted from fin clips collected in 2018-2020 (N ~ 511) using the method of Ivanova et al. (2006). Samples will be genotyped at 11 microsatellite markers and one sex identification marker. Tissue samples have also been collected from hatchery spring Chinook collected at the McKenzie Hatchery and outplanted above Cougar Dam in 2014 (N = 683), 2015 (N = 669), 2016 (N =518), 2017 (N = 546), 2018 (N = 541) and 2019 (N = 451). DNA will be extracted from fin clips collected in 2014-2017 (N = 2,416) using the method of Ivanova et al. (2006). Samples will be genotyped at 11 microsatellite markers and one sex identification marker. 
+
+(2) Genetic-based parentage assignments will be made for all unmarked adult spring Chinook salmon sampled in the South Fork McKenzie River in 2016-2019 using genotypes from salmon previously released above Cougar Dam as potential parents in 2011-2016.  Two analytical approaches will be used as implemented in the software programs: CERVUS (Kalinowski et al. 2007), and COLONY (Wang and Santure 2009).  
+
+(3) General Linear Models (GLM) will be used to estimate the effect of alternate release strategies (i.e. site and date), when possible, on the total lifetime fitness of adult spring Chinook salmon transported above Cougar Dam in 2011-2015.  
+
+(4) A Chi-square test will be used to compare the parentage assignment rate of adult Chinook salmon that enter the trap and haul facility prior to and after September 1st. 
+
+(5) Cohort Replacement Rate (CRR) of Chinook salmon outplanted above Cougar Dam in 2011-2015 will be estimated as the mean number of adult Chinook salmon produced per adult spawner.
+
+(6) Single generation (Waples and Do 2008; Tallmon et al. 2008) and cross generation methods (Waples 1989, 2005; Frankham 1995) will be used to estimate the effective number of breeders of spring Chinook salmon transported above Cougar Dam in 2011-2015. 
+
+(7) The abundance and age structure of assigned adult offspring returns will be determined through genetic parentage analyses.
+
+# Previous Run
+Here we collect raw data from the previous analysis and attempt to recreate the analysis to produce the same results. All 
+
 
