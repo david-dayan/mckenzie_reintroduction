@@ -1,0 +1,25 @@
+Output file path & name : /Users/ddayan/FRA/McKenzie_pedigree/mckenzie_reintroductionColony2.DAT
+Number of loci : 11
+Number of offspring in the sample : 501
+Number of male candidates : 1794
+Number of female candidates : 1211
+Number of known paternal sibships : 
+Number of known maternal sibships : 
+Number of offspring with excluded fathers : 0
+Number of offspring with excluded mothers : 0
+Male mating system : Polygamous
+Female mating system : Polygamous
+Dioecious/Monoecious : Dioecious
+Number of threads : nA
+Number of Excluded Paternal Sibships : 0
+Number of Excluded Maternal Sibships : 0
+Seed for random number generator : 123
+Allele frequency : No updating by accounting for the inferred relationship
+Species : Diploid
+Known population allele frequency : No
+Number of run : 1
+Length of run : Long
+Monitor intermiediate results by : Every 100 seconds
+Project data input produced : Thu Sep  3 13:28:19 2020
+NOTE to the Project: 2012
+

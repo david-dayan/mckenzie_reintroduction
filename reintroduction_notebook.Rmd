@@ -11,6 +11,7 @@ output:
 
 ```{r, message=FALSE, warning=FALSE}
 #packages here
+require(tidyverse)
 ```
 
 # Summary
@@ -46,7 +47,11 @@ In addition to goals designated in the USACE propasal these data can be used to 
 
 (4) Sythesize/compare these results with those from other reports years to identify trends. 
 
+__Analysis questions__
 
+(1) Should we include adfluvial individuals in the analysis through grandparentage analysis as well as parentage analysis?    
+
+(2) 
 
 # Methods Summary
 
@@ -66,7 +71,961 @@ from USACE proposal:
 
 (7) The abundance and age structure of assigned adult offspring returns will be determined through genetic parentage analyses.
 
-# Previous Run
-Here we collect raw data from the previous analysis and attempt to recreate the analysis to produce the same results. All 
+# Previous Run - Inferring Methods
+
+In this section we pore through methods sections, logs and output files to infer the methods used in the previous run in lead up to attempt attempt to recreate the previous analysis/results.
+
+## Genotypes
+
+__From Sard 2016 supplement:__  
+
+> We isolated total genomic DNA from tissue samples using a glass-fiber protocol developed by Ivanova et al. (2006) and amplified 11 highly polymorphic microsatellites using the polymerase chain reaction (PCR): Ots201, Ots208b, Ots209, Ots211, Ots212, Ots215, Ots249, Ots253, Ots311, Ots409, and Ots515 (Banks et al., 1999, Greig et al., 2003, Naish and Park, 2002, Williamson et al., 2002).  Most reintroduced adults were genotyped at 10 or more loci (99%, n= 6,079/6,119). We also genotypically sexed all adults using the sex-linked marker Oty3 because it has been shown to accurately identify the sex of Chinook salmon in the Willamette River basin (Brunelli et al., 2008). We visualized PCR products on an ABI 3730XL DNA analyzer (Applied Biosystems, Inc., Foster City, CA) and size scored genotypes using GeneMapper software (Applied Biosystems, Inc.).
+
+__From Banks June 2014 Report:__  
+
+>Total genomic DNA was isolated (Ivanova et al. 2006) from all adults, and a subset of juveniles each year. DNA samples were amplified at 11 highly polymorphic microsatellites using polymerase chain reaction (PCR): Ots201, Ots208b, Ots209, Ots211, Ots212, Ots215, Ots249, Ots253, Ots311, Ots409, and Ots515 (Banks et al. 1999; Greig et al. 2003; Naish and Park 2002; Williamson et al. 2002). Brunelli et al. (2008) found that the sex-linked marker Oty3 can correctly identify sex of Willamette River Chinook. Accordingly, we used this marker to determine the sex of adult Chinook and compared these results to those from phenotypic assessments. All PCR products were visualized on an ABI 3730XL DNA Analyzer (Applied Biosystems, Inc., Foster City, CA), and scored using GeneMapper software (Applied Biosystems, Inc., Foster City, CA).
+
+
+## Parentage
+
+### CERVUS
+
+__Installing CERVUS__
+installed wine to run cervus on mac, run with command below
+```{bash, eval= FALSE}
+#start a console window in wine using the app shortcut
+cd .wine/drive_c/Program\ Files\ \(x86\)/Field\ Genetics/Cervus
+wine start Cervus.exe
+```
+
+__Identifying Data__
+```{r message=FALSE, warning=FALSE}
+#there are several genotype files throughout the data shared by nick named "adult_master" . which one is the actual master file
+a <- read_tsv(file = "Sard_data/Genetic Pedigrees/Adults to Adults/Below Dam/Cervus/Genotypes/Input/04DEC13_cougar_adult_master.txt")
+
+b <- read_tsv(file = "Sard_data/2015/14JUL2015_cougar_adult_master.txt")
+
+c <- readxl::read_xlsx("previous_run_info/10APR2016_Cougar_adult_master.xlsx")
+
+d <- read_tsv(file = "Sard_data/Genetic Pedigrees/Adults to Adults/Cervus/04DEC2015_Cougar_adult_master.txt")
+
+e <- read_tsv(file = "Sard_data/Genetic Pedigrees/Adults to Adults/Cervus/Genotypes/04JAN2016_Cougar_adult_master.txt")
+
+
+#how much overlap is there in samples between these files
+length(intersect(a$Sample.Name, b$Sample.Name))
+length(intersect(b$Sample.Name, c$Sample.Name))
+length(intersect(a$Sample.Name, c$Sample.Name))
+
+#all but two samples (blank rows) in a are in b and c, and all of b is in c... lets looks more closely
+a %>%
+  group_by(year) %>%
+  tally()
+
+b %>%
+  group_by(year) %>%
+  tally()
+
+c %>%
+  group_by(year) %>%
+  tally()
+
+d %>%
+  group_by(year) %>%
+  tally()
+
+# file a is incomplete and contains missing data
+# file b is the dataset used in the Sard 2016 paper
+# file d includes additional 2014 fish 
+# file c includes additional fish from 2014 and 2015
+# still missing the file with the full dataset from the June 2016 report
+
+#what do the columns mean? (inferred by comparing counts to tables in Sard 2016)
+  #type: hatchery versus wild (HOR vs NOR)
+  #out.strat: captured at hatchery or in the trap
+
+c %>%
+  group_by(type, year) %>%
+  tally()
+
+
+
+```
+
+__Cervus commands__
+
+Methods sections:
+Sard 2016:  
+
+> We performed separate parentage analyses for each potential pair of parent–offspring run years to reduce pairwise comparisons. We also attempted to assign the 2007–2010 reintroduced adults to potential offspring collected below the dam from 2011 to 2013    
+
+> The likelihood approach applied in this algorithm simulated genetic data comparable to the given system when estimating log-likelihood statistics (LOD) and Δ scores, which were then used to assess confidence in assignments. Our simulations used the default setting for offspring (n=10,000) and the number of male and female adults in the actual datasets being analyzed. We conservatively set the proportion of parents sampled for each sex to 70%, given that nearly all adults were sampled for genetic analysis. Finally, genotyping error was set to our empirical estimate of 2%. We accepted all parent-offspring pairs with ≤1 genotypic mismatches based on our power analysis 
+
+Banks 2014 Report:   
+
+> We identified POPs using CERVUS (Kalinowski et al. 2007; Marshall et al. 1998). CERVUS’s likelihood approach simulates genetic data comparable to the given system when estimating log-likelihood statistics (LOD) and Δ scores, which are then used to assess confidence in assignments. Our simulations used the default setting for offspring (n=10,000), and the number of male and female adults in the actual datasets being analyzed. We set the proportion sampled for each sex to 98%, given that nearly all adults were sampled for genetic analysis. Finally, genotyping error was set to 2% as estimated using the procedure described above. We accepted all POPs with ≤1 genotypic mismatch based on our power analysis. Any adult offspring that were assigned to only a single parent using our assignment criteria were also included in pedigrees.
+
+
+Questions to ascertain from log files:  
+(1) Did Nick run a simulation for each parent-offspring year pair to generate the parameters for each assignment run, or simulations at higher hierarchies?  
+    **Within each year-pair: the sample genotype file used for simulations is of the same length as the union between NOR offspring and all parents of the years selected, also the number of canidate father and mother in the simulation files matches at the level of year-year pair**  
+
+
+Summary:  
+(1) For each year-year pair generate genotype file, mothers file and fathers file (also something called a counts file with counts of parents, but this is unclear how used currently)  
+(2) For each year-year pair estimate allele frequency file  
+(3) Use alf file to gnerate sim file  
+(4) Use sim file to run parentage 
+
+# Previous Run - Recreating Results
+## Parentage
+### CERVUS
+
+Here we attempt to recreate Sard 2016s results. We use the file "Sard_data/2015/14JUL2015_cougar_adult_master.txt" as input. 
+
+#### 2007_2010
+
+```{r, message=FALSE, warning=FALSE}
+dayan_results <- read_csv(file = "Sard_data/Genetic Pedigrees/Adults to Adults/Cervus/Output/2007_2010/dayan_out.csv")
+sard_results <- read_csv(file = "Sard_data/Genetic Pedigrees/Adults to Adults/Cervus/Output/2007_2010/output.all.lod.csv")
+
+#check if hav the same values, despite rounding differences
+# same dims 
+# just going to plot a few values to check
+
+colnames(dayan_results) <- gsub(" ", "_", colnames(dayan_results))
+merged <- sard_results %>%
+  left_join(dayan_results, by = c("off.id" = "Offspring_ID"))
+
+plot(log(merged$`Trio_Delta`),log(merged$trio.delta))
+plot(log(merged$`Parent_pair_non-exclusion_probability`),log(merged$nep.2))
+plot(log(merged$lod.od), log(merged$Pair_LOD_score_1))
+```
+
+Hmmm, it appears that the trio-delta and the parent-pair non-exclusion probabilities are exactly the same, but the LOD has some values that vary between my run and Nick's. No explanation for this yet. **note: resolved, please see section below for correct vervus run parameters**
+
+#### 2012 Cohort
+
+Here we attempt to recreate the CERVUS pedigree for the 2012 cohort (parents in 2007, 2008, 2009)
+
+first create the datasets for CERVUS from the master genotype file
+```{r, eval=FALSE}
+# Genotype Files
+# for each year-year pair collect parents and offspring, but note that we are building pedigree only for fish produced above the dam, so offspring year should only include fish with type = W
+geno_2007_2012 <- b %>%
+  filter(year == 2007 | (year == 2012 & type == "W")) %>%
+  select(Sample.Name, OT201:Ot515_1)
+
+geno_2008_2012 <- b %>%
+  filter(year == 2008 | (year == 2012 & type == "W")) %>%
+  select(Sample.Name, OT201:Ot515_1)
+
+geno_2009_2012 <- b %>%
+  filter(year == 2009 | (year == 2012 & type == "W")) %>%
+  select(Sample.Name, OT201:Ot515_1)
+
+# Dam file
+# for sex, we use the sex.gt column, unless the value is RR or XX, then sex is assigned using pheno
+b <- b %>%
+  mutate(sex = case_when((sex.gt == "RR" | sex.gt=="XX") ~ sex.pheno, TRUE ~ sex.gt ))
+
+dam_2007 <- b %>%
+  filter(year == 2007 & sex == "F") %>%
+  select(Sample.Name)
+
+dam_2008 <- b %>%
+  filter(year == 2008 & sex == "F") %>%
+  select(Sample.Name)
+
+dam_2009 <- b %>%
+  filter(year == 2009 & sex == "F") %>%
+  select(Sample.Name)
+
+# Sire file
+sire_2007 <- b %>%
+  filter(year == 2007 & sex == "M") %>%
+  select(Sample.Name)
+
+sire_2008 <- b %>%
+  filter(year == 2008 & sex == "M") %>%
+  select(Sample.Name)
+
+sire_2009 <- b %>%
+  filter(year == 2009 & sex == "M") %>%
+  select(Sample.Name)
+
+# Offspring file
+off_2012 <- b %>%
+  filter((year == 2012 & type == "W")) %>%
+  select(Sample.Name)
+
+# write the files
+
+write_tsv(geno_2007_2012, "recreating_2016_analysis/CERVUS_pedigree/CERVUS_input_files/geno_2007_2012.txt")
+write_tsv(geno_2008_2012, "recreating_2016_analysis/CERVUS_pedigree/CERVUS_input_files/geno_2008_2012.txt")
+write_tsv(geno_2009_2012, "recreating_2016_analysis/CERVUS_pedigree/CERVUS_input_files/geno_2009_2012.txt")
+
+write_tsv(dam_2007, "recreating_2016_analysis/CERVUS_pedigree/CERVUS_input_files/dam_2007.txt")
+write_tsv(dam_2008, "recreating_2016_analysis/CERVUS_pedigree/CERVUS_input_files/dam_2008.txt")
+write_tsv(dam_2009, "recreating_2016_analysis/CERVUS_pedigree/CERVUS_input_files/dam_2009.txt")
+
+write_tsv(sire_2007, "recreating_2016_analysis/CERVUS_pedigree/CERVUS_input_files/sire_2007.txt")
+write_tsv(sire_2008, "recreating_2016_analysis/CERVUS_pedigree/CERVUS_input_files/sire_2008.txt")
+write_tsv(sire_2009, "recreating_2016_analysis/CERVUS_pedigree/CERVUS_input_files/sire_2009.txt")
+write_tsv(off_2012, "recreating_2016_analysis/CERVUS_pedigree/CERVUS_input_files/offspring_2012.txt")
+
+```
+
+Now run CERVUS on each year-year pair:  
+
+(1) For each year-year pair estimate allele frequency file  
+(2) Use alf file to gnerate sim file 
+      10000 offspring
+      use the number of actual candidate mothers and fathers from the dam/sire files
+      use 70% sampled (from Sard 2016, note that we don't know if the pedigree in the shared data is the one from the ms or from the technical report that used 98% sampled)
+      genotyping error set to 2%
+(3) Use sim file to run parentage 
+
+__Combine Results into a Pedigree__  
+
+Now that we have all the assignments, we need to consolidate this info into a consensus pedigree for CERVUS. Parsing Nick's scripts it seems like the following approach was taken:
+
+(0) Concatenate all years results into single dataset  
+(1) For both parent assignments:  
+    (a) remove all POPs (rows) with with either damPOP or sirePOP >1 mismatch
+    (b) keep parent offspring pairs with lowest mismatches (i.e. within a offspring choose either dam and sire indepedently based solely on number of mismatched )  
+    (c) if multiple POPs have the same number of mismatches, use the LOD score (for each parent)  
+(2) Single parent assignments:  
+    (a) remove all POPs with >1 mismatch  
+    (b) keep parent with lower mismatch  
+    (c) if same number of mismatches, use LOD
+
+A big thing to note here is that, whether intentionally or not, the pedigree is built primarily on the number of mismatches one parent at a time, (i.e. searches for the best dam by mismatches, then the best sire, not the best row in the output). This throws out nearly all the power that CERVUS has to make assignments over older exclusion based methods and (more importantly) it introduces the problem of creating impossible pedigrees (parents in different years), which are subsequently filtered, leading to unassigned offspring and biasing the central result of the study (CRR). We should check to see how big of an effect this has on assignment rate.
+
+Info to keep for merging with COLONY results: pedigree, number of mismatches for each POP, parent years
+
+
+```{r, message=FALSE, warning=FALSE}
+#get the raw results from CERVUS
+POPs2007_2012 <- read_csv("recreating_2016_analysis/CERVUS_pedigree/CERVUS_outputs/2007_2012.csv")
+POPs2008_2012 <- read_csv("recreating_2016_analysis/CERVUS_pedigree/CERVUS_outputs/2008_2012.csv")
+POPs2009_2012 <- read_csv("recreating_2016_analysis/CERVUS_pedigree/CERVUS_outputs/2009_2012.csv")
+
+
+#concatenate all 2012 offspring results
+POPs2012 <- bind_rows(POPs2009_2012,POPs2007_2012, POPs2008_2012)
+
+#let's do the filtering according to sard's protocol
+#note that because the filtering worked on a single parent offspring pair, then combined dams and sire, it is easiest to do this twice (once for dams, once for sires) then combine
+cer_ped_dam_2012 <- POPs2012 %>%
+  filter(!(is.na(`Candidate mother ID`))) %>%#first lets get rid of all the blank rows
+  filter(`Pair loci mismatching` <= 1 ) %>% #now get rid of all the POPs with >1 mismatch
+  select(`Offspring ID`, `Candidate mother ID`, `Pair loci mismatching`, `Pair LOD score`) %>%
+  group_by(`Offspring ID`) %>%
+  filter(`Pair loci mismatching`==min(`Pair loci mismatching`)) %>%
+  filter(`Pair LOD score`== max(`Pair LOD score`)) %>%  # now resolve any competitions (multiple parents per offsprings with same number of mismatches) by LOD
+  ungroup() %>%
+  distinct()
+
+#now do the same for fathers
+cer_ped_sire_2012 <- POPs2012 %>%
+  filter(!(is.na(`Candidate father ID`))) %>%#first lets get rid of all the blank rows
+  filter(`Pair loci mismatching_1` <= 1 ) %>% #now get rid of all the POPs with >1 mismatch
+  select(`Offspring ID`, `Candidate father ID`, `Pair loci mismatching_1`, `Pair LOD score_1`) %>%
+  group_by(`Offspring ID`) %>%
+  filter(`Pair loci mismatching_1`==min(`Pair loci mismatching_1`)) %>%
+  filter(`Pair LOD score_1`== max(`Pair LOD score_1`)) %>%  # now resolve any competitions (multiple parents per offsprings with same number of mismatches) by LOD
+  ungroup() %>%
+  distinct()
+
+#join to create final pedigree
+cer_ped_2012 <- POPs2012 %>%
+  select(`Offspring ID`) %>%
+  distinct() %>%
+  left_join(cer_ped_dam_2012) %>%
+  left_join(cer_ped_sire_2012)
+
+#Next let's examine how many assignments are getting thrown out because of the across year issue
+sum(substr(cer_ped_2012$`Candidate mother ID`,3,4) != substr(cer_ped_2012$`Candidate father ID`, 3,4), na.rm = TRUE)
+
+#okay let's get rid of these year mismatches
+cer_ped_2012 <- cer_ped_2012 %>%
+  mutate(mom_year = str_sub(`Candidate mother ID`, 3,4)) %>%
+  mutate(dad_year = str_sub(`Candidate father ID`, 3,4)) %>%
+  mutate(`Candidate mother ID` = if_else(is.na(`Candidate father ID`),`Candidate mother ID`,if_else(mom_year!=dad_year, "UK", `Candidate mother ID`))) %>%
+  mutate(`Candidate father ID` = if_else(is.na(`Candidate mother ID`),`Candidate father ID`,if_else(mom_year!=dad_year, "UK", `Candidate father ID`)))
+
+```
+
+Okay the combos across years only results in throwing out 4 (~1%) of assignments
+
+__Compare to Nick's Results__
+
+First we compare the output files.
+
+```{r, message=FALSE, warning=FALSE}
+sard_2012_pedigree <- read_tsv(file = "Sard_data/Genetic Pedigrees/Adults to Adults/Cervus_Colony_Comparison/Input/cervus.pedigree.2012.txt")
+
+#check if hav the same values, despite rounding differences
+#first convert "UK" to NA 
+sard_2012_pedigree <- sard_2012_pedigree %>%
+#  mutate_at(c("mom.id", "dad.id"), list(~na_if(., "UK"))) %>%
+  left_join(cer_ped_2012, by = c("off.id"="Offspring ID")) %>%
+  rename_with(~ tolower(gsub(" ", "_", .x, fixed = TRUE))) %>%#get rid of spaces, getting annoying
+  replace_na(list(candidate_mother_id ="UK", candidate_father_id="UK")) %>%
+  mutate(mom_match=if_else(mom.id ==candidate_mother_id,TRUE,FALSE)) %>%
+  mutate(dad_match=if_else(dad.id ==candidate_father_id, TRUE, FALSE)) 
+
+
+#summarise differences
+sum(sard_2012_pedigree$mom_match == TRUE & sard_2012_pedigree$dad_match == TRUE, na.rm = TRUE)
+```
+
+There was a perfect match at 491 of 501 of the 2012 offspring.
+
+Examining some of the differences  
+MR12TH_066: Two dams with no mismatches, Sard chooses dam with LOWER LOD score  
+MR12TH_343: year mismatch in dayan results, so its hard to figure out  
+MR12TH_002: two sires with 1 mismatch, Sard chose sire with lower LOD  
+MR12TH_124: year mismatch in dayan results, so its hard to figure out  
+MR12TH_302: same thing, sard chose lower LOD score  
+
+Double checked the stated methods, It appears that the differences in results stem from a small error in some of Sard's code. When two candidate parents have the same number of mismatches, Sard's results sometimes choose the less likely parent (lower LOD score). This could explain the discrepancies where my results have been tossed because parents are in different years as well. The offending piece of code settles ties using the LOD for the parent offspring __trio__ instead of the parent in question's LOD score, despite the fact the the code chooses each parent separately. However, because the can be many possible trio with the same small set of parents (i.e. one ofsspring, two dams with equal mismatches and two sires can produce 4 parent-offpsring trios) a higher LOD for the trio is sometimes observed despite a lower LOD for an individual parent. 
+
+If we choose to fix this, we should either make assignments at the trio level, or simply leave the code as is above (use single parent LOD score for single parent assignment)
+
+
+### Colony
+
+Colony run details were parsed from a project information file shared by Sard. 
+
+__Run Parameters__
+
+>Output file path & name : 'C:\ZSL\Colony\Mck 2015 returns run2\Mck 2015 returns run2'
+Number of loci : 11
+Number of offspring in the sample : 263
+Outbreeding (0) or inbreeding (1) model : 0
+Number of male candidates : 2171
+Number of female candidates : 1621
+Number of known paternal sibships : 0
+Number of known maternal sibships : 0
+Number of offspring with excluded fathers : 0
+Number of offspring with excluded mothers : 0
+Male mating system : Polygamy
+Female mating system : Polygamy
+Number of threads : 1
+Number of Excluded Paternal Sibships : 0
+Number of Excluded Maternal Sibships : 0
+Dioecious (2) or monoecious (1) : 2
+Seed for random number generator : 159
+Allele frequency : No updating by accounting for the inferred relationship
+Species : Diploid
+Sibship scaling : Yes
+Sibship size prior : Yes
+paternal & maternal sibship sizes : 1  1
+Known population allele frequency : No
+Number of run : 1
+Length of run : Medium
+Monitor intermiediate results by : Every 1 second
+Prob. a dad is included in the male candidates : .70
+Prob. a mum is included in the female candidates : .70
+Project data input produced : 04/01/2016
+NOTE to the Project:
+
+Should also note that from the input files provided by Sard, it is clear that (unlike the approach used with CERVUS) COLONY was run with all potential parents for a given offspring cohort in a single run, improving power to identify correct trios, but introducing the possibility of impossible trio (different years), colony provides a pairwise black list option (exclude impossible parent pairs), so we could run with greater power if we wanted to and avoid tossing assignments because of year-year mismatches
+
+```{r, eval=FALSE}
+require(rcolony)
+rcolony::build.colony.input()
+
+```
+
+
+#### 2012 Cohort
+
+Here we attempt to use a r based wrapper for colony with some convenient functions (plus the developer is locked out of his office due to COVID and can't update the expired mac version of the software)
+
+We'll use the input file wizard to generate a .DAT file (input for colony), then run this on the server. Problem is that the versions vary... used this wizard then made a couple changes to the .DAT file:
+
+(1) copied first parameter section from the example file included with the software, then set to params from Sards project file  
+(2) number of known parent offspring dyads lines (first two lines after all the genotype info) need to have two 0s, not one
+
+check the 2012 cohort .DAT file and use as template for other runs
+
+```{r, eval = FALSE}
+#pedigree file is multisapced delimited, 
+
+col_ped_2012_dayan <- read_table("recreating_2016_analysis/COLONY_pedigree/2012_output/2012_cohort.BestConfig")
+col_ped_2012_sard <- read_tsv("Sard_data/Genetic Pedigrees/Adults to Adults/Cervus_Colony_Comparison/Input/colony.pedigree.2012.txt")
+
+merged_col_ped_2012 <- col_ped_2012_dayan %>%
+  rename(father_dayan = FatherID, mother_dayan = MotherID) %>%
+  select(OffspringID, father_dayan, mother_dayan) %>%
+  left_join(col_ped_2012_sard, by = c("OffspringID" = "OffspringID")) %>%
+  mutate_all(funs(str_replace(., "Dad_.+|Mom_.+", "UK"))) %>%
+  mutate_all(funs(str_replace(., "\\#\\d+|\\*\\d+", "UK"))) %>%
+  mutate(dad_match = father_dayan==FatherID) %>%
+  mutate(mom_match = mother_dayan==MotherID)
+
+sum(merged_col_ped_2012$mom_match == TRUE & merged_col_ped_2012$dad_match == TRUE, na.rm = TRUE)
+
+```
+
+Only 416 out of 510 assignments match... looking more into colony settings
+
+Findings: sard used different colony settings across different colony runs, my run followed the parameters used for sards 2015 run, which I assumed would be the same, ran again with sards 2012 settings (changed sibship settings, run length, etc ) 
+
+Another issue is thatcolony user guide is STRONGLY suggests converging results from replicates runs with different starting seeds, because it realizes on a MCMC-like approach for estimating likelihoods.
+
+```{r, message=FALSE, warning=FALSE}
+#pedigree file is multisapced delimited, 
+
+col_ped_2012_dayan <- read_table("recreating_2016_analysis/COLONY_pedigree/2012_output/2012_cohort.BestConfig")
+col_ped_2012_sard <- read_tsv("Sard_data/Genetic Pedigrees/Adults to Adults/Cervus_Colony_Comparison/Input/colony.pedigree.2012.txt")
+
+merged_col_ped_2012 <- col_ped_2012_dayan %>%
+  rename(father_dayan = FatherID, mother_dayan = MotherID) %>%
+  select(OffspringID, father_dayan, mother_dayan) %>%
+  left_join(col_ped_2012_sard, by = c("OffspringID" = "OffspringID")) %>%
+  mutate_all(funs(str_replace(., "Dad_.+|Mom_.+", "UK"))) %>%
+  mutate_all(funs(str_replace(., "\\#\\d+|\\*\\d+", "UK"))) %>%
+  mutate(dad_match = father_dayan==FatherID) %>%
+  mutate(mom_match = mother_dayan==MotherID)
+
+sum(merged_col_ped_2012$mom_match == TRUE & merged_col_ped_2012$dad_match == TRUE, na.rm = TRUE)
+
+
+#what about the file sdirectly out of colony?
+sars2012col <- read_table("Sard_data/Genetic Pedigrees/Adults to Adults/COLONY/Pedigrees/Mck_2012_returns/Mck_2012_returns.BestConfig")
+col_ped_2012_dayan <- read_table("recreating_2016_analysis/COLONY_pedigree/2012_output/2012_cohort.BestConfig")
+
+
+merged_col_ped_2012_2 <- col_ped_2012_dayan %>%
+  rename(father_dayan = FatherID, mother_dayan = MotherID) %>%
+  select(OffspringID, father_dayan, mother_dayan) %>%
+  left_join(sars2012col, by = c("OffspringID" = "OffspringID")) %>%
+  mutate_all(funs(str_replace(., "\\#\\d+|\\*\\d+", "UK"))) %>%
+  mutate(dad_match = father_dayan==FatherID) %>%
+  mutate(mom_match = mother_dayan==MotherID)
+
+
+sum(merged_col_ped_2012_2$mom_match == TRUE & merged_col_ped_2012_2$dad_match == TRUE, na.rm = TRUE)
+
+#results are the same as the pedigree reportd elesewhere in the SArd database
+```
+
+Ok exact same settings as the final Sard run for this year, only 2 better assignment concordance. Lets see how much this is due to cross run variance (run again on the exact same data with same setting and see how much the resutls vary)
+
+```{r, eval = FALSE}
+col_ped_2012_dayan_2 <- read_table("recreating_2016_analysis/COLONY_pedigree/2012_output/2012_2/2012_cohort.BestConfig")
+
+all_equal(col_ped_2012_dayan, col_ped_2012_dayan_2)
+
+col_ped_2012_dayan_3 <- read_table("recreating_2016_analysis/COLONY_pedigree/2012_output/2012_cohort_3.BestConfig")
+
+all_equal(col_ped_2012_dayan, col_ped_2012_dayan_3)
+
+```
+
+No variance at all in colony results across three separate runs, differences are unlikely due to different mcmc seeds.
+
+### Composite Pedigree
+
+The final pedigrees used in the analysis are composite results from the COLONY and CERVUS runs
+
+From Sard 2016 supplement:  
+>For observed differences between assignment programs, we chose the assignment used in the final genetic pedigree based on several criteria. In brief, assignments with the lowest number of mismatches between parent and offspring took precedence. In addition, offspring that assigned to both parents in a given year took precedence over assignments to a single parent in a different year, based on non-exclusionary power calculations (Table S3). If the number of mismatches were the same the COLONY based assignment took precedence (see Harrison et al., 2013). Composite genetic pedigrees following these criteria were used for all subsequent analyses.
+
+From the "pedigree.compar" scripts, it appears the this is the algo used to determine the composite pedigree:   
+(a) pull the pedigrees from CERVUS and colony  
+(b) add the number of mismatches and parent years to the pedigrees (colony pedigree mismatches from cervus outputs) , then filter based on mismatched (note this is not done for the raw colony pedigree only before merging) 
+(c) join pedigrees  
+(d) check for concordance between results  
+(e) for each offspring in pedigree:  
+      - keep if same assignment  
+      - if different assignment (in order):  
+            - same year of both parents (toss the pedigree with year mismatch)  
+            - kept assignment from pedigree a if pedigree b does not make an assignment (either single or both parents)   
+            - both parents have assignment in both CERVUS and COLONY pedigrees, but there is a disagreement: go with COLONY  
+            - single parent match, but diasagree: go with lower mismatch number (if same mm go with COLONY)  
+            
+_note_ this is slightly different from what is written in the methods sections of the various reports and ms. In the methods sections it says when there is a disagreement between assignments (other than for non-assignments) then the decision is based on the number of mismatches. However, in the case where both parents disagree, the algorithm above defaults to COLONY so long as both pedigrees made full trio assignments, even if there were more mismatches. 
+
+
+```{r, message=FALSE, warning=FALSE}
+# joint 2012 pedigree
+
+#prep the cervus pedigree (change NA to "UK" for non-match), rename cols for easier merging later
+cer_ped_2012 <- cer_ped_2012 %>%
+  replace_na(list(`Candidate mother ID` = "UK", `Candidate father ID` = "UK")) %>%
+  rename(cervus_mom = `Candidate mother ID`, cervus_dad = `Candidate father ID`, mom_mm = `Pair loci mismatching`, dad_mm = `Pair loci mismatching_1`, mom_lod = `Pair LOD score`, dad_lod = `Pair LOD score_1`)
+
+#prep colony pedigree (add in mismatches from raw cervus outputs, add in parent year)
+#first create a dataframe of mismatch info for maternal and paternal POPs
+mom_mismatches <- POPs2012 %>%
+  select(`Offspring ID`, `Candidate mother ID`, `Pair loci mismatching`) %>%
+  drop_na() %>%
+  distinct() %>%
+  rename(mom_mm = `Pair loci mismatching`)
+
+dad_mismatches <- POPs2012 %>%
+  select(`Offspring ID`, `Candidate father ID`, `Pair loci mismatching_1`) %>%
+  drop_na() %>%
+  distinct() %>%
+  rename(dad_mm = `Pair loci mismatching_1`)
+
+#now merge these with the colony pedigree
+col_ped_2012_dayan <-  col_ped_2012_dayan %>%
+  left_join(mom_mismatches, by = c(OffspringID = "Offspring ID", MotherID = "Candidate mother ID")) %>%
+    left_join(dad_mismatches, by = c(OffspringID = "Offspring ID", FatherID = "Candidate father ID"))
+
+#rename non-assignments to "UK" and prep columns for merge
+
+col_ped_2012_dayan <- col_ped_2012_dayan %>%
+  mutate_all(funs(str_replace(., "\\#\\d+|\\*\\d+", "UK"))) %>%
+  rename(colony_dad = FatherID, colony_mom = MotherID, mom_mm_colony = mom_mm, dad_mm_colony = dad_mm)
+
+col_ped_2012_dayan <- col_ped_2012_dayan %>%
+  mutate(mom_year_col = str_sub(colony_mom, 3,4)) %>%
+  mutate(dad_year_col = str_sub(colony_dad, 3,4))
+
+#set mismatches >1 to UK
+col_ped_2012_dayan <- col_ped_2012_dayan %>%
+  mutate(colony_mom = if_else(mom_mm_colony >1 , "UK", colony_mom)) %>%
+  mutate(colony_dad = if_else(dad_mm_colony >1 , "UK", colony_dad))
+  
+  
+# merge
+merged2012_ped <- col_ped_2012_dayan %>%
+  left_join(cer_ped_2012, by = c("OffspringID" = "Offspring ID"))
+
+#create consensus according to Sard algorithm
+consensus_2012_ped <- merged2012_ped %>%
+  mutate_at(c("cervus_mom", "cervus_dad", "colony_dad", "colony_mom"), list(~na_if(., "UK"))) %>%#first convert all the UKs to NAs
+  mutate(final_mom = if_else((cervus_mom == colony_mom) & (cervus_dad == colony_dad), colony_mom, NA_character_)) %>% # first if there is a perfect match for both parents, write out both mom and dad, if not write out an NA 
+  mutate(final_dad = if_else((cervus_mom == colony_mom) & (cervus_dad == colony_dad), colony_dad, NA_character_)) %>%
+  mutate(colony_mom = if_else(mom_year_col == dad_year_col, colony_mom, NA_character_)) %>% 
+  mutate(colony_dad = if_else(mom_year_col == dad_year_col, colony_dad, NA_character_)) %>% #if both parents are assigned in both methods, but there is a disagreement, first choose based on year year mismatches, the easiest way to accomplish this is to just toss parents with year mismatches and wait for the next step which assigns parentage if one method has a POP, but the other does not, this was already done for the cervus pedigrees so we only have to do it once
+  mutate(final_mom = if_else(!(is.na(final_mom)), final_mom, if_else((is.na(colony_mom)) & !(is.na(cervus_mom)), cervus_mom, NA_character_))) %>%
+  mutate(final_mom = if_else(!(is.na(final_mom)), final_mom, if_else((is.na(cervus_mom)) & !(is.na(colony_mom)), colony_mom, NA_character_))) %>%
+    mutate(final_dad = if_else(!(is.na(final_dad)), final_dad, if_else((is.na(colony_dad)) & !(is.na(cervus_dad)), cervus_dad, NA_character_))) %>%
+  mutate(final_dad = if_else(!(is.na(final_dad)), final_dad, if_else((is.na(cervus_dad)) & !(is.na(colony_dad)), colony_dad, NA_character_))) %>%# if one method makes assignment but the other is unknown go with whatever has an assignment
+  mutate(final_dad = if_else(!(is.na(final_dad)), final_dad, if_else((!(is.na(colony_dad)) & !(is.na(colony_mom)) & !(is.na(cervus_dad)) & !(is.na(cervus_mom))) & (colony_dad != cervus_dad), colony_dad, NA_character_))) %>%
+    mutate(final_mom = if_else(!(is.na(final_mom)), final_mom, if_else((!(is.na(colony_dad)) & !(is.na(colony_mom)) & !(is.na(cervus_dad)) & !(is.na(cervus_mom))) & (colony_mom != cervus_mom), colony_mom, NA_character_))) %>% #both parents assigned in both methods, but disagree, default to colony, also need to assign the opposite parent (where there is agreement)next 2 lines
+   mutate(final_mom = if_else(!(is.na(final_mom)), final_mom, if_else(!(is.na(colony_dad)) & !(is.na(colony_mom)) & !(is.na(cervus_dad)) & !(is.na(cervus_mom)), colony_mom, NA_character_))) %>%
+    mutate(final_dad = if_else(!(is.na(final_dad)), final_dad, if_else(!(is.na(colony_dad)) & !(is.na(colony_mom)) & !(is.na(cervus_dad)) & !(is.na(cervus_mom)), colony_dad, NA_character_))) %>%
+ mutate(final_dad = if_else(!(is.na(final_dad)), final_dad, if_else((!(is.na(colony_dad)) & (is.na(colony_mom)) & !(is.na(cervus_dad)) & (is.na(cervus_mom))) & (colony_dad !=cervus_dad), if_else((dad_mm_colony >= dad_mm), colony_dad, NA_character_), NA_character_))) %>%
+  mutate(final_dad = if_else(!(is.na(final_dad)), final_dad, if_else((!(is.na(colony_dad)) & (is.na(colony_mom)) & !(is.na(cervus_dad)) & (is.na(cervus_mom))) & (colony_dad !=cervus_dad), if_else((dad_mm > dad_mm_colony), cervus_dad, NA_character_), NA_character_))) %>%
+   mutate(final_mom = if_else(!(is.na(final_mom)), final_mom, if_else((!(is.na(colony_mom)) & (is.na(colony_dad)) & !(is.na(cervus_mom)) & (is.na(cervus_dad))) & (colony_mom !=cervus_mom), if_else((mom_mm_colony >= mom_mm), colony_mom, NA_character_), NA_character_))) %>%
+  mutate(final_mom = if_else(!(is.na(final_mom)), final_mom, if_else((!(is.na(colony_mom)) & (is.na(colony_dad)) & !(is.na(cervus_mom)) & (is.na(cervus_dad))) & (colony_mom !=cervus_mom), if_else((dad_mm > dad_mm_colony), cervus_mom, NA_character_), NA_character_))) %>%#single parent match, but diasagree: go with lower mismatch number (if same mm go with COLONY) 
+  mutate(final_dad = if_else(!(is.na(final_dad)), final_dad, if_else((!(is.na(colony_dad)) & !(is.na(cervus_dad))) & (colony_dad == cervus_dad),colony_dad,NA_character_))) %>%
+  mutate(final_mom = if_else(!(is.na(final_mom)), final_mom, if_else((!(is.na(colony_mom)) & !(is.na(cervus_mom))) & (colony_mom == cervus_mom),colony_mom,NA_character_)))
+#single parent match and agree
+
+#clean up this dataset to match sard final peds
+sard_final_2012 <- read_tsv("Sard_data/Genetic Pedigrees/Adults to Adults/Cervus_Colony_Comparison/Output/2012.combined.pedigree.txt")
+
+final2012_ped <- consensus_2012_ped %>%
+  select(OffspringID, final_mom, final_dad) %>%
+  left_join(sard_final_2012, by = c("OffspringID" = "offspring")) %>%
+  replace_na(list(final_mom = "UK", final_dad = "UK"))
+
+#check if this dataset is correct
+final2012_ped$mom_match <- (final2012_ped$final_mom == final2012_ped$mom)
+final2012_ped$dad_match <- (final2012_ped$final_dad == final2012_ped$dad)
+final2012_ped$bothmatch <- ((final2012_ped$mom_match == T ) & (final2012_ped$dad_match == T))
+  
+sum(final2012_ped$bothmatch, na.rm = T) 
+        
+```
+
+Our pedigrees our share 488 out of 501 assignments exactly, 97.5%
+
+Below we examine each of the disagreements and attempt to figure out what went wrong. 
+
+MR12TH_032: I assigned MR07_073 as father with no mother, but Sard made no assignment, possible reason: each (parent and offspring) missing one locus, but different, so only 9 loci compared... should investigate this further to see if Sard scripts throw these out, but I think this is an error in my code (I failed to filter the same way)
+
+MR12TH_150: I assigned MR07_124 as father, no assignment in Sard. Sard's father assignment had 2 mm and was thrown out, yet, MR07_124 has 1 mm. again only genotyped at 9 sites. 
+
+MR12TH_157: I made no final assignments, despite identifying MR07_163 as a father in colony, Sard assigned MR07_163 as father. It appears that the cervus run (where we get mismatches info from) did not have a row for this POP (used the only show positive LOD score filter in cervus maybe)
+
+MR12TH_215: I assigned MR07_173 as mom (1mm), no assignments for Sard. Sard finds same mom as colony and cervus result, genotyped at 10 loci. Filtered out because 2mm despite earlier result showing 1mm. 
+
+MR12TH_238: Same error as 215, Sard throws out MR07_173 as dam because data used for filtering shows 2mm, despite only one mismatch in their cervus results, seems like error in script merging results before building the consensus pedigree
+
+MR12TH_252: agree on father assignment, different mother assignment. MR07_064 (dayan) has zero mismatches in both Dayan and Sard cervus results, and is the best mother under Dayan colony results, but MR07_271 is best mother under Sards colony results, despite the fact that there is 1mm.
+
+MR12TH_268: appears to be full sib or duplicate to _252, same exact results as above. This difference is because my run did not filter out potential fallbacks (dups), will fix in final runs.
+
+MR12TH_451: Sard assigns MR09A_0200 as mom, Dayan makes no assignment. Dayan threw out cervus assignments because they were across years, assigns MR07_790 in colony results (1mm), Sard also assigns MR07_790 as mother using cervus, but MR09A_0200 as colony result (also with 1mm). difference here is that our colony runs favored different parents with the same number of mismatches across runs. 
+
+MR12TH_476: Dayan, no final assignments, Sard:	MR07_224 as father. Dayan assigned MR07_224 as father in colony, but was tossed because no mm info (need to keep all rows of cervus output to collect mm info)
+
+MR12TH_496: Dayan final dad:	MR07_741, Sard final dad	MR07_224. Dayan: cervus _741 (1mm), colony _224 (no mm info). Sard cervus _741 (1mm), but 224 for colony, no idea where Sard got the mm info from because it's also missing from their cervus output files. labeled as 1mm. we've seen before that the mm info used for the final consensus pedigree has errors in it, perhaps this is one of them. Need to go in an carefully check out the for loop that writes these data out.
+
+MR12TH_515: Sard final mo MR08_779, no final assignments for Dayan. Dayan cervus finds no parent, MR08_447 for mom in colony (but with no mm data), Sard find MR08_779 as mom in colony, but nothing in cervus (so where the mm data come from?)
+
+
+### Issues
+
+We arrived at 97.5% concordance between our final pedigree and Nick Sard's pedigree for the 2012 cohort. The 2.5% discordance can mostly be resolved by fixing a few small errors mostly in my code, these are outlined above.
+
+However, there are larger unresolved issues (which I mostly left in my code in attempting to perfectly recreate Sard's results), that need to be addressed. 
+
+list of issues:
+(2) Cervus is run year to year, then all results are concatenated and considered collectively. Parents are then selected one at a time on the basis of number of mismatches. This creates two major issues. First, it renders all statistics other than the number of mismatches meaningless (likelihoods can not be compared across different data). Second, in combination with assigning parents one by one, it leads to a scenario where impossible parentage combinations are possible (different years). This leads to parentage being tossed out even when a reasonable/high scoring parent offspring trio was available. Third, colony is not run in the same fashion, but instead considered all possible parents simultaneously, including impossible combinations.    
+(3) Choosing among good POPs in Cervus. The algorithm for choosing which of several likely POPs in cervus relies first on number of mismatches, disregarding the more informative LOD score unless there is a tie. While there should be good agreement here, htere are cases when they do not agree. Additionally there is also an error where ties are broken using the wrong statistics (parent offspring trio LOD, whereas parents are assigned as parent offspring pairs).  
+(4) Colony run differences: colony uses something akin to a mcmc to estimate parentage probablilities. Sard's pedigrees are based on a single run. My colony runs (only did 3) produce the same results, suggesting we have enough info to converge on similar answers, but there is still an unresolved issue here - our run parameters are exactly the same, yet produce slightly different results for a small number of offspring. Colony developer does not dsitribute versioned copies of colony, so it could be due to an update to the software as well.  
+(5) Disagreement between methods in ms and USACE/ODFW reports and my interpretation of the scripts. There are several details in the stated methods that do not align with (from what I can tell) are the actual methods used to assign parentage. (a) The first is covered in (3) above. The methods imply LOD is being used when it is not except to decide ties. (b) A second, more important issue is that the ms states that the composite pedigree defaults to the colony results only when there is a tie in the mumber of mismatches, however the code gives the tie to colony whenever both parents were assigned by both methods, regardless of the number mismatches. (c) The ms states that offspring that assigned to both parents in a given year took precedence over assignments to a single parent in a different year. This seems absent from the code (maybe it never happened in the data).  
+(6) Sard's dataset that is used to make the consensus pedigree contains some rows with errors. i.e. The number of mismatches between some parent-offspring pairs does not agree with their previous results or Dayan's results using the same raw data. This leads to some parents assigned despite better alternatives available. It is unclear where these numbers come from (can't find the error that produces them yet). Seems like only a tiny number of rows with this issue though.  
+(8) Colony is run with all possible parent combos leading to impossible trios (different parent years) that are subsequently filtered out, even though good parents may still be available, biases CRR downwards.  
+
+These issues can be divided into two categories: (i) small differences in code sometimes due to errors that produce minor differences between Dayan and Sard's results and can be reconciled one way or another, (ii) fundamental issues with the approach incorporated into both's code that either (a) potentially lead to spurious results or (b) significantly differ from the methods in the manuscript.
+
+While (i) can mostly be resolved if the goal is simply to perfectly recreate previous results, (ii) presents a more serious problem because they bias the final conclusions of the manuscript. For example, consider issue (2) from above (cervus is run year to year, then concatenated). This results in several offspring with clear parents in the dataset, but no assignment in the pedigree used to estimate the cohort replacement rate or fitness metrics. This biases fitness and CRR estimates downward. 
+
+Little notes:  
+- Using mismatches: similar to (2) above, the number of mismatches is given precedence over all other results. While there may be a justification for this approach there is one area that causes a major problem. The number of mismatches for a parent offspring pair is calculated in cervus, but then used to filter colony results. Given that cervus does not output mm results for all parent offspring pairs by default, some POPs assigned in colony by Dayan are missing info and tossed out. This produces a small number of the disagreements in the final pedigrees, but can be fixed in later runs. 
+
+## Reintroduced adult fitness
+
+Here, we use the final pedigrees from Sard's shared data (not the pedigrees we generate) to recreate the fitness results from Sard 2016. 
+
+### Methods Summary  
+
+From Sard 2016:  
+
+> We estimated fitness by counting the number of NOR Chinook
+salmon returns that assigned to adults reintroduced
+above Cougar Dam in 2007 and 2008. We focused on these
+years because all of their offspring would have returned and
+been genotyped, with the exception of age-6 offspring produced
+by the 2008 cohort. However, the incorporation of
+age-6 adults would likely not change the results significantly,
+since few (<2%, Johnson & Friesen, 2013) Chinook salmon
+from the Willamette River mature at that age.
+We evaluated factors that might explain variation in fitness
+using the R package lme4 (Bates et al., 2015). Sex and
+release location were evaluated as factors, whereby females
+and Bridge 1980 (river kilometer 17.2) were treated as references.
+We evaluated release date as a numeric predictor. We
+accounted for similarities among Chinook salmon reintroduced
+on the same location and date with a random effects
+variable (release group). We tested if different release locations
+or variation in release dates significantly associated
+with fitness to determine if these factors could be used to
+identify ways to improve the program’s efficacy. We evaluated
+each year separately because the number of release
+locations (range: 2–3) and release dates (range: 10–13) varied
+between reintroduction years (Supporting Information
+Table S1). Multiple release sites were chosen to broaden the
+distribution of spawners. We tested whether mean fitness differed
+among adults released at each site. Information from
+this analysis could be used to determine where and when
+future adults should be reintroduced. We thus tested each
+explanatory variable and all first-order interaction terms individually
+to determine if they significantly (a = 0.05)
+explained variation in fitness using generalized linear mixed
+model regression with a negative binomial distribution. All
+significant variables identified were included in a full model
+and we used backwards Akaike information criterion (AIC)
+model selection (Akaike, 1974) to identify the best model (2
+AIC units) to explain fitness variation.
+
+### 2007 Cohort
+
+Let's try for the 2007 fish. 
+
+```{r load libs, message=FALSE, warning=FALSE}
+require(ggplot2)
+require(MASS)
+require(lattice)
+require(fields)
+require(foreign)
+require(lme4)
+require(lmerTest)
+```
+
+#### Prep
+
+__Model Summary:__  
+The goal here is to fit the following mixed model (negative binomial): number of assigned offspring per parent ~ Sex (factor) + release location (factor) + date (numeric) + release group (random variable - combo of release date and location). Variables were tested individually, then included on the final model if significant. 
+
+__Data Prep__
+Here we go from the pedigree and metadata to the dataframe needed to fit the glmm.
+
+```{r, message=FALSE, warning=FALSE}
+# read in geno + meta data
+genos <- read_tsv("Sard_data/2014/Adult-Adult paper/GLMMs/2007/GLMM Prep/Input/04DEC13_cougar_adult_master.txt")
+
+# read in pedigree (only for 2010 - 2013, don't include 2014 and 2015 fish since these arent in the paper) and filter for 2007 parents
+ped_2010 <- read_tsv("Sard_data/Genetic Pedigrees/Adults to Adults/Cervus_Colony_Comparison/Output/2010.combined.pedigree.txt")
+ped_2011 <- read_tsv("Sard_data/Genetic Pedigrees/Adults to Adults/Cervus_Colony_Comparison/Output/2011.combined.pedigree.txt")
+ped_2012 <- read_tsv("Sard_data/Genetic Pedigrees/Adults to Adults/Cervus_Colony_Comparison/Output/2012.combined.pedigree.txt")
+ped_2013 <- read_tsv("Sard_data/Genetic Pedigrees/Adults to Adults/Cervus_Colony_Comparison/Output/2013.combined.pedigree.txt")
+
+# calculate reproductive success for each parent from 2007
+mom_fitnesses <- ped_2010 %>%
+  bind_rows(ped_2011, ped_2012, ped_2013) %>%
+  mutate(mom_year = str_sub(mom, 3,4)) %>%
+  filter(mom_year == "07") %>%
+  group_by(mom) %>%
+  mutate(rs = n()) %>%
+  select(mom, rs) %>% 
+  rename(parent=mom) %>%
+  unique()
+
+dad_fitnesses <- ped_2010 %>%
+  bind_rows(ped_2011, ped_2012, ped_2013) %>%
+  mutate(dad_year = str_sub(dad, 3,4)) %>%
+  filter(dad_year == "07") %>%
+  group_by(dad) %>%
+  mutate(rs = n()) %>%
+  select(dad, rs) %>%
+  rename(parent=dad) %>%
+  unique()
+
+#get release loction name
+
+loc_key <- read_tsv("Sard_data/2014/Adult-Adult paper/GLMMs/2007/GLMM Analysis/Input/a07.glmm.data.txt")
+loc_key <- loc_key %>%
+  select(rkm, loc) %>%
+  unique()
+
+#make the final dataset  
+glm_2007_data <- genos %>%
+  mutate(sex = case_when((sex.gt == "RR" | sex.gt=="XX") ~ sex.pheno, TRUE ~ sex.gt )) %>%
+  select(Sample.Name, sex, jul_date, rkm, year, type, out.strat) %>%
+  filter(year == 2007) %>%
+  left_join(mom_fitnesses, by = c("Sample.Name" = "parent")) %>%
+  left_join(dad_fitnesses, by = c("Sample.Name" = "parent")) %>%
+  mutate( rs = coalesce(rs.x, rs.y)) %>%
+  select(Sample.Name, sex, jul_date, rkm, year, rs) %>%
+  replace_na(list(rs = 0)) %>%
+  mutate(release = paste(rkm, jul_date, sep = "_")) %>%
+  left_join(loc_key) 
+
+
+#set classes and relevel factors variables
+  
+glm_2007_data$loc <- as.factor(glm_2007_data$loc)
+glm_2007_data$loc <- relevel(glm_2007_data$loc, ref="Bridge.1980")
+
+glm_2007_data$sex <- as.factor(glm_2007_data$sex)
+glm_2007_data$sex <- relevel(glm_2007_data$sex, ref="F")
+
+
+```
+
+
+#### GLMM
+
+Next fit the mixed model
+
+First, define and fit the model (choose which variables to include)
+
+```{r}
+
+#main predictors
+summary(glmer.nb(rs ~ jul_date + (1|release),data = glm_2007_data))
+summary(glmer.nb(rs ~ loc + (1|release),data = glm_2007_data))
+summary(glmer.nb(rs ~ sex + (1|release),data = glm_2007_data))
+
+# intereactions
+summary(glmer.nb(rs ~ jul_date*sex+ (1|release),data = glm_2007_data))
+summary(glmer.nb(rs ~ sex*loc + (1|release),data = glm_2007_data))
+summary(glmer.nb(rs ~ jul_date*loc + (1|release),data = glm_2007_data))
+
+
+```
+
+Only location and release date in the final model. Sex and all two-way interaction are not significant.
+
+```{r}
+final_model_2007<- glmer.nb(rs ~ jul_date +  loc + (1|release),data = glm_2007_data)
+summary(final_model_2007)
+#only date signficiant 
+final_model_2007 <- (glmer.nb(rs ~ jul_date + (1|release),data = glm_2007_data))
+final_model_2007_sum <- summary(glmer.nb(rs ~ jul_date + (1|release),data = glm_2007_data))
+
+
+#collect results
+
+se <- sqrt(diag(vcov(final_model_2007_sum)))
+round((cbind(Est = fixef(final_model_2007), LL = fixef(final_model_2007) - 1.96 * se, UL = fixef(final_model_2007) + 1.96 * se)),4) # removed the exponential here
+
+```
+
+Date has a significant negative effect, about 1% reduction in fitness per day. This is the exact result from the manuscript.
+
+#### Fitness Summary stats
+
+The manuscript reports a list of summary statistics for each parent (separate sexes) year including: percent with any assigned offspring, mean reproductive success and its sd
+
+```{r}
+glm_2007_data %>%
+  filter(sex == "M") %>%
+  summarise(mean_rs = mean(rs), sd_rs = sd(rs), assign_success = (sum(rs>0)/nrow(.)))
+
+glm_2007_data %>%
+  filter(sex == "F") %>%
+  summarise(mean_rs = mean(rs), sd_rs = sd(rs), assign_success = (sum(rs>0)/nrow(.)))
+```
+
+Nice, exact same results as ms
+
+#### Cohort Replacement Rate
+
+Cohort replacement rate is simply number of progeny divided by the size of a cohort.
+
+To calculate the CRR for the 2007 parents, count all the offspring that assign to a parent in that year, then divide by number of parents. The CRR reported in the ms used only females
+
+```{r}
+final_ped <- ped_2010 %>%
+  bind_rows(ped_2011, ped_2012, ped_2013) %>%
+  left_join(genos, by = c("offspring" = "Sample.Name")) %>%
+  mutate(sex = case_when((sex.gt == "RR" | sex.gt=="XX") ~ sex.pheno, TRUE ~ sex.gt )) %>%
+  mutate(mom_year = str_sub(mom, 3,4)) %>%
+  mutate(dad_year = str_sub(dad, 3,4)) %>%
+  filter(mom_year == "07" | dad_year == "07")
+
+nrow(filter(final_ped, sex == "F"))/nrow(filter(glm_2007_data, sex == "F"))
+```
+
+Uh oh, this is slightly off. Sard result is 0.40. What's up?
+
+comment from ms:  
+
+> Female Chinook salmon reintroduced above Cougar Dam in
+2007 (n = 318) and 2008 (n = 288) spawned 126 and 89
+female offspring that returned to the South Fork McKenzie
+River as adults from 2010 to 2013
+
+Sards script (cohort.replacement.rate.07.R) winds up with 125 female offspring and 320 dams. My results are 125/318. Neither is 0.40. The extra two dams are NAs, has to do with the way the script filters for female fish (skips NA rows). 
+
+
+okay there's an additional set of scripts for Sard's CRR calcs, see below
+
+```{r}
+
+tmp <- read.table("Sard_data/2014/Adult-Adult paper/Demographic parameters/CRR check/Input/a07.glmm.data.txt",header = T,stringsAsFactors = F) 
+tmp <- tbl_df(tmp) 
+tmp
+
+df <- read.table("Sard_data/2014/Adult-Adult paper/Demographic parameters/CRR check/Input/offspring.2007.txt",header = T,stringsAsFactors = F)
+df <- tbl_df(df)
+df
+
+#defining new columns in tmp
+tmp$boys <- NA
+tmp$girls <- NA
+tmp
+
+#the for loop counting how many kids were boys and girls
+i <- NULL
+df
+tmp
+for(i in 1:nrow(tmp)){
+  
+  if(tmp$sex.gt[i] == "F"){
+    tmp1 <- filter(df, mom == tmp$Sample.Name[i]) 
+    tmp$boys[i] <- nrow(filter(tmp1, sex.gt == "M"))
+    tmp$girls[i] <- nrow(filter(tmp1, sex.gt == "F"))
+  }
+  
+  if(tmp$sex.gt[i] == "M"){
+    tmp1 <- filter(df, dad == tmp$Sample.Name[i]) 
+    tmp$boys[i] <- nrow(filter(tmp1, sex.gt == "M"))
+    tmp$girls[i] <- nrow(filter(tmp1, sex.gt == "F"))
+  }
+}
+
+tmp
+tmp$all <- tmp$boys + tmp$girls
+table(tmp$all - tmp$rs)
+
+tmp
+
+sum(tmp[tmp$sex.gt == "F", "girls"])
+sum(tmp[tmp$sex.gt == "M", "boys"])
+
+table(tmp$sex.gt)
+
+112/318
+table(tmp$sex.gt,tmp$logit)
+123/318
+129/428
+
+
+tmp3 <- tmp
+```
+
+This script comes up with an entirely different CRR. It finds 318 dams, producing 112 female offspring for a CRR of 0.35. Interestingly this is the number I came up with when I made a mistake in the way I was counting up female offspring...wish I hadn't deleted that code.
+
+So three different approaches, all produce slightly different results, none line up with results in ms, and none are very big differences. Let's say the earlier sard script and the dayan script are close enough to each other (basically come to the same number, just added two extra dams by accident) and to the published result. 
+
+## Effective Population Size
+
+Previous USACE reports used NeEstimator v2
+
+Methods notes: 
+
+>We report Jackknifed 95% confidence internals (CIJ), as parametric 95% confidence intervals were found to be too narrow when estimating this parameter based on simulation results
+
+> We used the genotypes of F1 adult offspring to estimate the Nb for adults reintroduced from 2007 to 2010 using methods developed by (Do et al., 2014). As recommended by Waples and Do (2008), we use pcrit = 0.02 and report jack-�‐knifed 95% confidence internals (CIs)
+
+It looks like the methods are as straightforward as converting the microsats to single population genepop, and running neestimator using the LD estimate with random mating and maf cutoff of 2%.
+
+Running it on the data in Sard's NE directory produced a slightly different value that fell well within the CIs reported in the USACE tech report (182 vs 185)
+
+# Effects of year-year concatenation
+
+We identified several aspects of the previous parentage assignment that may bias CRR downwards. Here we'll build a pedigree using a somewhat different approach and measure the effect on CRR.
+
+## simple approach
+
+lets just see how many rows get filtered out of the results because of year year mismatches
+
+```{r}
+col_ped_2012_dayan <- read_table("recreating_2016_analysis/COLONY_pedigree/2012_output/2012_cohort.BestConfig")
+
+a <- col_ped_2012_dayan %>%
+  mutate(mom_year = str_sub(MotherID, 3,4)) %>%
+  mutate(dad_year = str_sub(FatherID, 3,4)) %>%
+  mutate_all(funs(str_replace(., "\\#\\d+|\\*\\d+", "UK"))) %>%
+  filter(MotherID != "UK" & FatherID != "UK" ) %>%
+  mutate(year_mismatch = mom_year == dad_year)
+
+col_ped_2013_sard <- read_table("Sard_data/Genetic Pedigrees/Adults to Adults/COLONY/Pedigrees/Mck_2011_returns/Mck_2011_returns.BestConfig")
+a <- col_ped_2013_sard %>%
+  mutate(mom_year = str_sub(MotherID, 3,4)) %>%
+  mutate(dad_year = str_sub(FatherID, 3,4)) %>%
+  mutate_all(funs(str_replace(., "\\#\\d+|\\*\\d+", "UK"))) %>%
+  filter(MotherID != "UK" & FatherID != "UK" ) %>%
+  mutate(year_mismatch = mom_year == dad_year)
+
+cerv <- read_tsv("Sard_data/Genetic Pedigrees/Adults to Adults/Cervus_Colony_Comparison/Input/cervus.pedigree.2011.txt")
+
+cerv <- cerv %>%
+  mutate(mom_year = str_sub(mom.id, 3,4)) %>%
+  mutate(dad_year = str_sub(dad.id, 3,4)) %>%
+  filter(mom.id != "UK" & dad.id != "UK" ) %>%
+  mutate(year_mismatch = mom_year == dad_year)
+```
+
+How many POPs tossed out of Sards results because of year year mismatches
+
+2011: 4 from colony (1.1%)  
+2012: 4 from cervus out of 501 total offspring and only 1 from the colony output.  (0.8%)  
+2013: 4 from colony  (1.7%)  
+2014: 1 from colony (0.4%)  
+2015: 4 from colony (1.5%)  
+
+
+# animal models
+
+we can use the glmm (above) to estimate the effects of release date, site and other factors on total lifetime fitness, however, we can gain deeper insight by building an animal model that combines relatedness information from our pedigree with trait data to estimate heritability, evolvability, and genetic covariance among traits.
+
+in this section we use the previous data to fit some animal models
 
 

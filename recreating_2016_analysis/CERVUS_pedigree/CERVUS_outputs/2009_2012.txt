@@ -1,0 +1,212 @@
+Cervus 3.0.7 - (c) Copyright Tristan Marshall 1998-2014
+Distributed by Field Genetics Ltd - www.fieldgenetics.com
+Licensed for non-commercial use only
+
+Parentage analysis completed 9/1/2020 6:11:33 PM
+
+
+**** Summary statistics ****
+
+
+Mother alone:
+
+Level       Confidence (%)  Critical Delta  Assignments        Assignment Rate  
+                                            Observed Expected  Observed Expected
+Strict               95.00            1.13       92 (    365)      18%    ( 73%)
+Relaxed              80.00            0.00      144 (    380)      29%    ( 76%)
+Unassigned                                      357 (    121)      71%    ( 24%)
+Total                                           501 (    501)     100%    (100%)
+
+Father alone:
+
+Level       Confidence (%)  Critical Delta  Assignments        Assignment Rate  
+                                            Observed Expected  Observed Expected
+Strict               95.00            1.50       85 (    367)      17%    ( 73%)
+Relaxed              80.00            0.00      164 (    389)      33%    ( 78%)
+Unassigned                                      337 (    112)      67%    ( 22%)
+Total                                           501 (    501)     100%    (100%)
+
+Parent pair (sexes known):
+
+Level       Confidence (%)  Critical Delta  Assignments        Assignment Rate  
+                                            Observed Expected  Observed Expected
+Strict               95.00            7.00        4 (    254)       1%    ( 51%)
+Relaxed              80.00            3.50       22 (    301)       4%    ( 60%)
+Unassigned                                      479 (    200)      96%    ( 40%)
+Total                                           501 (    501)     100%    (100%)
+
+
+**** Number of individuals tested ****
+
+Offspring (total):                                           501
+  Tested (typed at 6 or more loci):                          501
+  Not tested (typed at fewer than 6 loci):                     0
+
+Candidate mothers (total):                                   604
+  Tested (typed at 6 or more loci):                          604
+  Not tested (typed at fewer than 6 loci):                     0
+  Average number of candidate mothers per offspring:         604
+  Average proportion of sampled candidate mothers:             1.0000
+
+Candidate fathers (total):                                   782
+  Tested (typed at 6 or more loci):                          780
+  Not tested (typed at fewer than 6 loci):                     2
+  Average number of candidate fathers per offspring:         782
+  Average proportion of sampled candidate fathers:             0.9974
+
+Average candidate parent pairs per offspring:             472328
+
+
+**** Files ****
+
+Input
+  Offspring file:                 offspring_2012.txt
+  Candidate mother file:          dam_2009.txt
+  Candidate father file:          sire_2009.txt
+  Genotype file:                  geno_2009_2012.txt
+  Allele frequency file:          alf_2008_2012.alf
+  Simulation data file:           sim_2009_2012.sim
+
+Output
+  Parentage summary file:         2009_2012.txt
+  Parentage data file:            2009_2012.csv
+
+
+**** Loci ****
+
+       1  OT20
+       2  OT20
+       3  OT24
+       4  Ot253
+       5  Ot21
+       6  Ot31
+       7  Ot40
+       8  Ot21
+       9  Ot20
+      10  Ot21
+      11  Ot51
+
+
+**** Simulation parameters ****
+
+Input
+  Number of offspring:                                     10000
+  Number of candidate mothers:                               604
+  Proportion of candidate mothers sampled:                     0.7000
+  Number of candidate fathers:                               782
+  Proportion of candidate fathers sampled:                     0.7000
+    Number of parent pairs:                               472328
+
+  Proportion of loci typed:                                    0.99640000
+  Proportion of loci mistyped:                                 0.02000000
+  Error rate in likelihood calculations:                       0.02000000
+  Minimum number of typed loci:                                6
+
+Output
+  Confidence determined using:                             Delta
+  Relaxed confidence level:                                   80.00%
+  Strict confidence level:                                    95.00%
+
+
+**** Excluded individuals ****
+
+The following candidate fathers were excluded from analysis because
+  they were typed at fewer than 6 loci:
+
+MR09A_1313 (5 loci)
+MR09A_1319 (0 loci)
+
+TOTAL: 2
+
+
+**** Missing allele frequencies ****
+
+Alleles in the genotype file not found in the allele frequency file:
+
+ID               Locus       Allele
+MR09A_0056       Ot51        238   
+MR09A_0067       Ot31        382   
+MR09A_0068       Ot253       169   
+MR09A_0088       Ot51        238   
+MR09A_0105       Ot40        205   
+MR09A_0116       Ot31        372   
+MR09A_0118       Ot40        205   
+MR09A_0124       Ot40        205   
+MR09A_0136       Ot51        223   
+MR09A_0218       Ot20        291   
+MR09A_0236       Ot51        223   
+MR09A_0244       Ot51        238   
+MR09A_0276       Ot20        167   
+MR09A_0325       Ot40        205   
+MR09A_0353       Ot40        205   
+MR09A_0354       Ot20        313   
+MR09A_0383       Ot40        190   
+MR09A_0406       Ot40        205   
+MR09A_0408       Ot21        203   
+MR09A_0412       Ot40        205   
+MR09A_0420       Ot40        205   
+MR09A_0425       OT20        201   
+MR09A_0425       OT20        209   
+MR09A_0484       OT20        201   
+MR09A_0484       OT20        209   
+MR09A_0506       Ot40        239   
+MR09A_0516       OT20        201   
+MR09A_0516       OT20        209   
+MR09A_0536       OT20        201   
+MR09A_0536       OT20        209   
+MR09A_0544       Ot40        190   
+MR09A_0554       OT20        201   
+MR09A_0554       OT20        209   
+MR09A_0560       Ot253       169   
+MR09A_0566       OT20        201   
+MR09A_0566       OT20        209   
+MR09A_0570       OT20        380   
+MR09A_0574       OT20        201   
+MR09A_0574       OT20        209   
+MR09A_0582       OT20        201   
+MR09A_0582       OT20        209   
+MR09A_0603       Ot40        205   
+MR09A_0611       Ot253       124   
+MR09A_0617       Ot40        205   
+MR09A_0618       OT20        201   
+MR09A_0704       Ot40        205   
+MR09A_0711       Ot31        383   
+MR09A_0735       Ot31        383   
+MR09A_0779       Ot21        224   
+MR09A_0810       OT20        281   
+MR09A_0812       Ot40        205   
+MR09A_0841       Ot40        239   
+MR09A_0849       Ot40        239   
+MR09A_0861       Ot40        151   
+MR09A_0866       Ot40        205   
+MR09A_0928       Ot40        153   
+MR09A_0937       Ot40        239   
+MR09A_0956       Ot253       169   
+MR09A_0981       Ot40        205   
+MR09A_0991       OT20        297   
+MR09A_0993       Ot40        146   
+MR09A_1017       Ot40        146   
+MR09A_1033       Ot40        153   
+MR09A_1035       OT20        306   
+MR09A_1054       Ot20        313   
+MR09A_1074       OT20        395   
+MR09A_1095       Ot40        146   
+MR09A_1101       Ot253       167   
+MR09A_1117       Ot21        306   
+MR09A_1162       Ot40        205   
+MR09A_1188       Ot40        205   
+MR09A_1203       Ot40        205   
+MR09A_1209       OT20        337   
+MR09A_1226       Ot40        146   
+MR09A_1231       Ot40        205   
+MR09A_1256       Ot40        205   
+MR09A_1309       OT24        161   
+MR09A_1340       Ot253       167   
+MR09A_1349       Ot31        232   
+MR09A_1356       Ot20        291   
+MR09A_1372       Ot40        205   
+
+TOTAL: 81
+
+
+********************************************************************************
